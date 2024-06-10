@@ -1,8 +1,7 @@
 import streamlit as st
+import pandas as pd
 import xlrd
 from openpyxl import Workbook
-import pandas as pd
-
 
 def convert_to_xlsx(file_path):
     # Ler a planilha XLS
@@ -23,12 +22,7 @@ def convert_to_xlsx(file_path):
 
     return new_file_path
 
-
-def process_excel(file_path):
-    # Carregar a planilha Excel
-    planilha = pd.read_excel(file_path)
-
-    # Iterar sobre cada linha da planilha
+def rearrange_values(planilha):
     for index, row in planilha.iterrows():
         if pd.notna(row['DOCUMENTO']):  # Verificar se a coluna DOCUMENTO não está vazia
             if row['DOCUMENTO'] == 'Pix':  # Se o documento for 'Pix'
@@ -45,38 +39,49 @@ def process_excel(file_path):
                     planilha.at[index + 1, 'VALOR'] = row['VALOR']
                     # Limpar o valor na linha atual
                     planilha.at[index, 'VALOR'] = None
+    
+    return planilha
 
-    # Salvar a planilha com as alterações
-    corrected_file_path = file_path.replace('.xlsx', '_corrigida.xlsx')
-    planilha.to_excel(corrected_file_path, index=False)
+def main():
+    st.title('Correção de Planilha')
 
-    return corrected_file_path
+    uploaded_file = st.file_uploader("Escolha uma planilha XLS ou XLSX", type=["xls", "xlsx"])
 
+    if uploaded_file is not None:
+        st.write("Planilha incorreta carregada!")
+        st.write("Executando a correção...")
 
-# Interface do Streamlit
-st.title('Conversão e Processamento de Planilhas Excel')
+        try:
+            # Salvar o arquivo carregado temporariamente
+            file_path = f"temp_{uploaded_file.name}"
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-uploaded_file = st.file_uploader('Faça o upload de um arquivo XLS', type=['xls'])
+            # Converter para XLSX, se necessário
+            if file_path.endswith('.xls'):
+                file_path = convert_to_xlsx(file_path)
+            
+            # Ler a planilha XLSX
+            planilha = pd.read_excel(file_path)
 
-if uploaded_file is not None:
-    # Salvar o arquivo enviado
-    xls_path = f"temp_{uploaded_file.name}"
-    with open(xls_path, 'wb') as f:
-        f.write(uploaded_file.getbuffer())
+            # Corrigir a planilha
+            planilha_corrigida = rearrange_values(planilha.copy())
 
-    # Converter para XLSX
-    xlsx_path = convert_to_xlsx(xls_path)
-    st.write(f'Arquivo convertido: {xlsx_path}')
+            # Salvar a planilha corrigida em um novo arquivo
+            planilha_corrigida_file_path = "planilha_corrigida.xlsx"
+            planilha_corrigida.to_excel(planilha_corrigida_file_path, index=False)
 
-    # Processar a planilha
-    corrected_file_path = process_excel(xlsx_path)
-    st.write(f'Arquivo processado: {corrected_file_path}')
+            st.write("Planilha corrigida pronta para download!")
+            with open(planilha_corrigida_file_path, "rb") as file:
+                st.download_button(
+                    label="Baixar planilha corrigida",
+                    data=file,
+                    file_name=planilha_corrigida_file_path,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
-    # Permitir download do arquivo corrigido
-    with open(corrected_file_path, 'rb') as f:
-        st.download_button(
-            label='Baixar planilha corrigida',
-            data=f,
-            file_name=corrected_file_path,
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+        except Exception as e:
+            st.error(f"Ocorreu um erro durante a correção da planilha: {e}")
+
+if __name__ == "__main__":
+    main()
