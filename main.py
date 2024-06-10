@@ -28,17 +28,21 @@ def rearrange_values(planilha):
             if row['DOCUMENTO'] == 'Pix':  # Se o documento for 'Pix'
                 # Verificar se a próxima linha está vazia
                 if pd.isna(planilha.at[index + 2, 'VALOR']):
-                    # Recortar o valor na linha atual e colar duas linhas abaixo
+                    # Recortar o valor e a data na linha atual e colar duas linhas abaixo
                     planilha.at[index + 2, 'VALOR'] = row['VALOR']
-                    # Limpar o valor na linha atual
+                    planilha.at[index + 2, 'DATA'] = row['DATA']
+                    # Limpar o valor e a data na linha atual
                     planilha.at[index, 'VALOR'] = None
+                    planilha.at[index, 'DATA'] = None
             else:
                 # Verificar se a próxima linha está vazia
                 if pd.isna(planilha.at[index + 1, 'VALOR']):
-                    # Recortar o valor na linha atual e colar uma linha abaixo
+                    # Recortar o valor e a data na linha atual e colar uma linha abaixo
                     planilha.at[index + 1, 'VALOR'] = row['VALOR']
-                    # Limpar o valor na linha atual
+                    planilha.at[index + 1, 'DATA'] = row['DATA']
+                    # Limpar o valor e a data na linha atual
                     planilha.at[index, 'VALOR'] = None
+                    planilha.at[index, 'DATA'] = None
     
     return planilha
 
