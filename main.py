@@ -47,7 +47,7 @@ def rearrange_values(planilha):
     return planilha
 
 def main():
-    st.title('Correção de Planilha')
+    st.title('Conversão e Correção das Planilhas com os Extratos')
 
     uploaded_file = st.file_uploader("Escolha uma planilha XLS ou XLSX", type=["xls", "xlsx"])
 
