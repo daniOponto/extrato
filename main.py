@@ -47,7 +47,7 @@ def rearrange_values(planilha):
     return planilha
 
 def main():
-    st.title('Conversão e Correção das Planilhas com os Extratos')
+    st.title('Correção de Planilha')
 
     uploaded_file = st.file_uploader("Escolha uma planilha XLS ou XLSX", type=["xls", "xlsx"])
 
@@ -65,8 +65,8 @@ def main():
             if file_path.endswith('.xls'):
                 file_path = convert_to_xlsx(file_path)
             
-            # Ler a planilha XLSX
-            planilha = pd.read_excel(file_path)
+            # Ler a planilha XLSX, pulando as primeiras linhas irrelevantes
+            planilha = pd.read_excel(file_path, skiprows=2)  # Pula as duas primeiras linhas
 
             # Corrigir a planilha
             planilha_corrigida = rearrange_values(planilha.copy())
