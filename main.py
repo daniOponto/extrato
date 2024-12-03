@@ -66,7 +66,7 @@ def main():
                 file_path = convert_to_xlsx(file_path)
             
             # Ler a planilha XLSX, pulando as primeiras linhas irrelevantes
-            planilha = pd.read_excel(file_path, skiprows=2)  # Pula as duas primeiras linhas
+            planilha = pd.read_excel(file_path, skiprows=1)  # Pula as duas primeiras linhas
 
             # Corrigir a planilha
             planilha_corrigida = rearrange_values(planilha.copy())
